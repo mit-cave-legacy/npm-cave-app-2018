@@ -1,0 +1,16 @@
+body {
+  /*background: #1C1E24;*/
+  margin: 0;
+  padding: 0;
+  font-family: 'HK Grotesk', monospace;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}

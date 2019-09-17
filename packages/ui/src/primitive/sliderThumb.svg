@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 24">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #105ee7;
+        fill-rule: evenodd;
+      }
+
+      .cls-2, .cls-4 {
+        fill: none;
+      }
+
+      .cls-2 {
+        stroke: #609aff;
+      }
+
+      .cls-3 {
+        stroke: none;
+      }
+    </style>
+  </defs>
+  <g id="Group_4325" data-name="Group 4325" transform="translate(-466 -3516)">
+    <path id="Path_2145" data-name="Path 2145" class="cls-1" d="M8.254-33.206H21.368a3.376,3.376,0,0,1,3.443,3.3v11.849a3.249,3.249,0,0,1-1.168,2.48L17.086-10.03a3.552,3.552,0,0,1-4.551,0L5.979-15.571a3.249,3.249,0,0,1-1.168-2.48V-29.9A3.376,3.376,0,0,1,8.254-33.206Z" transform="translate(461.189 3549.206)"/>
+    <g id="Group_4326" data-name="Group 4326" transform="translate(-1)">
+      <g id="Rectangle_408" data-name="Rectangle 408" class="cls-2" transform="translate(472 3522)">
+        <rect class="cls-3" width="1.5" height="8" rx="0.75"/>
+        <rect class="cls-4" x="0.5" y="0.5" width="0.5" height="7" rx="0.25"/>
+      </g>
+      <g id="Rectangle_409" data-name="Rectangle 409" class="cls-2" transform="translate(476 3522)">
+        <rect class="cls-3" width="1.5" height="8" rx="0.75"/>
+        <rect class="cls-4" x="0.5" y="0.5" width="0.5" height="7" rx="0.25"/>
+      </g>
+      <g id="Rectangle_410" data-name="Rectangle 410" class="cls-2" transform="translate(480 3522)">
+        <rect class="cls-3" width="1.5" height="8" rx="0.75"/>
+        <rect class="cls-4" x="0.5" y="0.5" width="0.5" height="7" rx="0.25"/>
+      </g>
+    </g>
+  </g>
+</svg>

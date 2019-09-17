@@ -1,0 +1,10 @@
+{
+  "name": "deck-plus",
+  "version": "0.2.1",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@luma.gl/constants": "^7.1.1",
+    "deck.gl": "^6.3.0",
+    "luma.gl": "^6.4.2"
+  }
+}

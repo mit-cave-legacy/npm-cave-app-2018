@@ -1,0 +1,11 @@
+{
+  "npmClient":"npm",
+  "npmClientArgs": [
+    "--no-package-lock"
+  ],
+  "packages": [
+    "packages/*",
+    "examples/**"
+  ],
+  "version": "independent"
+}

@@ -1,0 +1,28 @@
+{
+  "name": "create-cave-app",
+  "version": "0.2.1",
+  "repository": "https://github.com/mit-cave-open/cave-app.git",
+  "license": "Apache-2.0",
+  "main": "bin/create-cave-app.js",
+  "bin": {
+    "create-cave-app": "bin/create-cave-app.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "templates",
+    "packages"
+  ],
+  "scripts": {
+    "clean": "rm -rf packages && rm -rf templates",
+    "prepare": "npm run clean && node lib/prepare.js"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.4.4",
+    "@babel/parser": "^7.4.5",
+    "fs-extra": "^8.0.1"
+  },
+  "bugs": {
+    "url": "https://github.com/MIT-CAVE/cave-app-open/issues"
+  }
+}

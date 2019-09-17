@@ -1,0 +1,102 @@
+{
+  "name": "@mit-cave/ui",
+  "version": "0.2.1",
+  "repository": "https://github.com/mit-cave-open/cave-app.git",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "jsnext:main": "dist/index.es.js",
+  "dependencies": {
+    "emotion": "^9.2.11",
+    "eventemitter3": "^3.1.0",
+    "glamor": "^2.20.40",
+    "glamorous": "^4.13.1",
+    "history": "^4.7.2",
+    "moment": "^2.22.2",
+    "ramda": "^0.26.1",
+    "react-datepicker": "^2.0.0",
+    "react-draggable": "^3.0.5",
+    "react-emotion": "^9.2.12",
+    "react-event-listener": "^0.6.4",
+    "react-tooltip": "^3.9.0",
+    "recompose": "^0.30.0",
+    "reselect": "^4.0.0",
+    "socket.io-client": "^2.2.0"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "start": "rollup -c -w",
+    "prepare": "npm run build",
+    "predeploy": "cd example && npm install && npm run build",
+    "deploy": "gh-pages -d example/build",
+    "storybook": "start-storybook -p 9009 -c .storybook",
+    "build-storybook": "build-storybook -s public",
+    "build-docs": "./node_modules/.bin/esdoc",
+    "import-icon": "node ./src/ui/import-icon.js"
+  },
+  "peerDependencies": {
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "react-vis": "^1.11.5"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.5",
+    "@babel/core": "^7.1.6",
+    "@babel/polyfill": "^7.0.0",
+    "@babel/preset-env": "^7.1.6",
+    "@babel/preset-react": "^7.0.0",
+    "@storybook/addon-backgrounds": "^4.0.8",
+    "@storybook/react": "^4.0.9",
+    "@types/prop-types": "^15.7.1",
+    "babel-eslint": "9.0.0",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-emotion": "^9.2.11",
+    "chance": "^1.0.16",
+    "clipboardy": "^1.2.3",
+    "esdoc": "^1.1.0",
+    "esdoc-ecmascript-proposal-plugin": "^1.0.0",
+    "esdoc-jsx-plugin": "^1.0.0",
+    "esdoc-standard-plugin": "^1.0.0",
+    "eslint": "5.6.0",
+    "eslint-config-react-app": "^3.0.5",
+    "eslint-config-standard-react": "^7.0.2",
+    "eslint-plugin-flowtype": "^3.2.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1",
+    "framework-x": "^0.1.44",
+    "gh-pages": "^2.0.1",
+    "husky": "^1.2.0",
+    "lint-staged": "^8.1.0",
+    "prettier": "1.15.2",
+    "prop-types": "^15.7.2",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "react-scripts": "2.1.1",
+    "react-vis": "^1.11.5",
+    "rollup": "^0.67.3",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-glob": "^1.0.1",
+    "rollup-plugin-json": "^3.1.0",
+    "rollup-plugin-node-resolve": "^3.0.2",
+    "rollup-plugin-peer-deps-external": "^2.0.0",
+    "rollup-plugin-postcss": "^1.1.0",
+    "rollup-plugin-url": "^2.0.1",
+    "svg-to-jsx": "^1.0.0",
+    "voca": "^1.4.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,json,css}": [
+      "prettier --single-quote --no-semi --write"
+    ]
+  },
+  "files": [
+    "dist"
+  ]
+}

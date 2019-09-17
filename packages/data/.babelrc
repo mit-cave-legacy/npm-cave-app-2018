@@ -1,0 +1,26 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "chrome": "67"
+        },
+        "useBuiltIns": "usage"
+      }
+    ],
+    "@babel/preset-react"
+  ],
+  "plugins": [
+    [
+      "emotion",
+      {
+        "sourceMap": true,
+        "autoLabel": true,
+        "labelFormat": "[local]",
+        "cssPropOptimization": true
+      }
+    ],
+    "@babel/plugin-proposal-class-properties"
+  ]
+}

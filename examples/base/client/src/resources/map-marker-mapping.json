@@ -1,0 +1,10 @@
+{
+  "default": {
+    "x": 0,
+    "y": 0,
+    "width": 48,
+    "height": 69,
+    "anchorY": 69,
+    "mask": true
+  }
+}

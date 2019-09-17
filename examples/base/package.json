@@ -1,0 +1,21 @@
+{
+  "name": "cave-app-base",
+  "version": "0.2.1",
+  "license": "Apache-2.0",
+  "engine": {
+    "node": "^10.13.0"
+  },
+  "scripts": {
+    "install-all": "npm ci && npm run install-client && npm run install-server",
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "build:server": "cd server && npm run build",
+    "start": "cd server && npm start",
+    "dev": "cd server && npm run dev",
+    "populate": "cd server && npm run populate"
+  },
+  "devDependencies": {
+    "prettier": "1.15.2"
+  },
+  "dependencies": {}
+}
