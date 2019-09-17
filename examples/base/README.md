@@ -57,6 +57,8 @@ npm run dev
   - On Unix, if the last instance of the app was not shutdown correctly, an `EADDRINUSE` for the port can occur.
     - In linux, you can kill a port with `fuser -k 4000/tcp`
 
+Your app should be available at: `localhost:4000`
+
 ## Run in production
 Production client builds run significantly faster in the browser than development ones.
 
