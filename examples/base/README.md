@@ -52,7 +52,10 @@ npm run dev
 - Compiles `client`, available in the browser at `localhost:4000`
 
 - Notes:
-  - There are known issues with filewatchers in Atom when running this command in Ubuntu. You may need to close Atom while starting the app. Once app is started, Atom can be opened again and hotloading should be functional.
+  - There are known issues with filewatchers in Atom when running this command in Ubuntu.
+  - You may need to close Atom while starting the app. Once app is started, Atom can be opened again and hotloading should be functional.
+  - On Unix, if the last instance of the app was not shutdown correctly, an `EADDRINUSE` for the port can occur.
+    - In linux, you can kill a port with `fuser -k 4000/tcp`
 
 ## Run in production
 Production client builds run significantly faster in the browser than development ones.

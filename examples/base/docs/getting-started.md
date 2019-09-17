@@ -304,12 +304,10 @@ regEventFx(appEvent.INITIAL_STORES, (_, __, stores) => {
 
 #### Registering client event handlers
 
-In order for either of these handlers to work, they need to be "registered".
-This will happen automatically (calling `regEventFx` registers them) so long as
-they run. Right now they don't, because no part of our program actually requires (or `import`s)
-these new files we've created.
+In order for either of these handlers to work, they need to be "registered". This will happen automatically (calling `regEventFx` registers them) so long as
+they run. Right now they are set up to call app. If you create a different file structure, you will need to import them because no part of our program actually requires (or `import`s) these files that were created.
 
-Before going further, check to make sure this is importing correctly from app:
+Before going further, check to make sure this is importing correctly from app in both the client and server:
 
 `client/src/events/index.js`
 ```js
@@ -380,7 +378,8 @@ regEventFx(dataEvent.SOCKET_CONNECTED, () => {
 Note: We can do this because the order of events isn't important. If they needed to happen in order, we can always use `emitN` (like in the first example). This would guarantee the first event is dispatched before the second. In this case we would still want to call emitN from `client/src/app/events.js`. In this case, we may need to remove emitN from the `client/src/mit-cave/data/index.js`. This may cause issues when pulling a new version of the app.
 
 The client should now have the stores data.
-You can verify this by evaluating `window._store.getState()` from the browser console.
+- You can verify this by evaluating `window._store.getState()` from the browser console.
+  - `_store` is specifically not related to our `stores` data, but the way that browsers process data.
 - For the stores data, expand the object and check `data/stores` where you should see a list of walmart store locations.
 
 ## Adding the scatterplot layer
