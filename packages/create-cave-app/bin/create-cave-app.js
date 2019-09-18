@@ -2,10 +2,16 @@
 const exec = require('child_process').execSync
 const path = require('path')
 const fs = require('fs-extra')
-const { switchPublishedToLocal } = require('../lib/switchDependencies')
-const { DEFAULT_TEMPLATE_DIRNAME ,VERSION} = require('./../lib/constants')
+// const { switchPublishedToLocal } = require('../lib/switchDependencies')
+const {
+  PACKAGE_TEMPLATES_DIR,
+  TARGET_PROJECT_LIB_FOLDER_NAME,
+  DEFAULT_TEMPLATE_DIRNAME,
+  VERSION,
+  templateArgToTemplateDirname
+} = require('./../lib/runtimeConstants')
 
-const { TARGET_PROJECT_LIB_FOLDER_NAME, PACKAGE_TEMPLATES_DIR, templateArgToTemplateDirname } = require('./../lib/constants')
+
 const UPGRADEABLE_DEPS = ['cave-app']
 const COMMAND_DIR = process.cwd()
 
@@ -104,7 +110,7 @@ const tryFindUserCaveLibIndex = (rootFolder) => {
 const useSource = (args) => {
   const indexFile = tryFindUserCaveLibIndex(COMMAND_DIR)
   const projectRoot = indexFile.slice(0, indexFile.indexOf(`src/${TARGET_PROJECT_LIB_FOLDER_NAME}`))
-  switchPublishedToLocal({ libNames: args, projectRoot, indexFile })
+  // switchPublishedToLocal({ libNames: args, projectRoot, indexFile })
 
   process.exit(0)
 }
@@ -120,7 +126,7 @@ const help = {
   },
   'new': () => {
     print('Usage: create-cave-app new <project-name>')
-   print('options: ')
+    print('options: ')
     print('  --template=<template-name>')
     print(`Where <template-name> is one of ${JSON.stringify(Object.keys(templateArgToTemplateDirname)
                                                                   .filter(n => n
@@ -144,7 +150,7 @@ const commands = {
       help.main()
     }
   },
-  'version':()=>{
+  'version': () => {
     console.log(VERSION)
   }
 }
