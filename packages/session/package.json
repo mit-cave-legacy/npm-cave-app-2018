@@ -1,8 +1,11 @@
 {
   "name": "@mit-cave/session",
-  "version": "0.2.1",
+  "version": "0.1.1",
   "repository": "https://github.com/mit-cave-open/cave-app.git",
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "module": "dist/es",
   "files": [
     "dist/cjs",
