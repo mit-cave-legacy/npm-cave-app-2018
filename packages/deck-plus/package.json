@@ -1,5 +1,6 @@
 {
   "name": "deck-plus",
+  "private": true,
   "version": "0.2.1",
   "license": "Apache-2.0",
   "dependencies": {

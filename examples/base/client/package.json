@@ -1,6 +1,7 @@
 {
   "name": "cave-app-base-client",
   "version": "0.2.1",
+  "private": true,
   "license": "Apache-2.0",
   "engine": {
     "node": "^10.13.0"

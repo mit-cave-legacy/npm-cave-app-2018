@@ -1,6 +1,7 @@
 {
   "name": "cave-app-base-server",
   "version": "0.2.1",
+  "private": true,
   "description": "",
   "scripts": {
     "dev": "npm-run-all dev:build --parallel dev:run dev:watch ",
