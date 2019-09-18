@@ -305,9 +305,9 @@ regEventFx(appEvent.INITIAL_STORES, (_, __, stores) => {
 #### Registering client event handlers
 
 In order for either of these handlers to work, they need to be "registered". This will happen automatically (calling `regEventFx` registers them) so long as
-they run. Right now they are set up to call app. If you create a different file structure, you will need to import them because no part of our program actually requires (or `import`s) these files that were created.
+they run. Right now they are run by each respective `index.js` under the nomenclature `../app/events`. If you create a different file structure, you will need to import them because no part of our program actually requires (or `import`s) these files that were created.
 
-Before going further, check to make sure this is importing correctly from app in both the client and server:
+Before going further, check to make sure this is importing correctly from `app` in both the client and server:
 
 `client/src/events/index.js`
 ```js
@@ -327,7 +327,7 @@ import '../app/events'
 ```
 
 Note:
-- If you use, different names, this will need to be reflected in each respective `index` file
+- If you use different names, this will need to be reflected in each respective `index` file
 
 Now all we have to do is `emit` `REQUEST_INITIAL_STORES` from the client
 and things should just work.
@@ -359,7 +359,7 @@ regEventFx(dataEvent.SOCKET_CONNECTED, ({ db }) => ({
 
 In general, it is best to keep changes away from the `mit-cave` folder as these are core functions and can cause issues with integrating future updates into your app. Let's handle the same event in a more appropriate place.
 
-Since we're still working with a specific `appEvent`, let's add a handler in
+Since we're still working with a specific client `appEvent`, let's add a handler in
 `client/src/app/events.js`:
 
 ```js
@@ -375,17 +375,16 @@ regEventFx(dataEvent.SOCKET_CONNECTED, () => {
 })
 ```
 
-Note: We can do this because the order of events isn't important. If they needed to happen in order, we can always use `emitN` (like in the first example). This would guarantee the first event is dispatched before the second. In this case we would still want to call emitN from `client/src/app/events.js`. In this case, we may need to remove emitN from the `client/src/mit-cave/data/index.js`. This may cause issues when pulling a new version of the app.
+Note: We can do this because the order of events isn't important. If they needed to happen in order, we can always use `emitN` (like in the first example). This would guarantee the first event is dispatched before the second. In this case, we would still want to call emitN from `client/src/app/events.js`. We may need to remove the `emitN` event from the `client/src/mit-cave/data/index.js` if we need `SUBSCRIBE_TO_BACKGROUND_DATA` to be in a specific order. This may cause issues when pulling a new version of the app.
 
 The client should now have the stores data.
 - You can verify this by evaluating `window._store.getState()` from the browser console.
   - `_store` is specifically not related to our `stores` data, but the way that browsers process data.
-- For the stores data, expand the object and check `data/stores` where you should see a list of walmart store locations.
+- For the stores data, expand the object and check `data/stores` where you should see a list of Walmart store locations.
 
 ## Adding the scatterplot layer
 
-Map layers are registered in `client/src/views/map/layers.js` as functions that
-receive the `db` and return a `deck.gl` `Layer`.
+Map layers are registered in `client/src/views/map/layers.js` as functions that receive the `db` and return a `deck.gl` `Layer`.
 
 Note:
 - We also support layer functions that return a layer description as a plain Javascript object
@@ -407,8 +406,7 @@ We're going to make `getStoresLayer` a selector.
 Note:
 - A selector is a function that remembers the last input value it was called with and the return value that was generated from it.
 - If a selector is called with the same input multiple times in a row, the corresponding value is returned without running the calculation again.
-- This is useful in many settings, but it's especially useful for React apps,
-since it can help us tell `React` that it shouldn't render when our data hasn't changed, avoiding unnecessary virtual DOM reconciliation.
+- This is useful in many settings, but it's especially useful for React apps, since it can help us tell `React` that it shouldn't render when our data hasn't changed, avoiding unnecessary virtual DOM reconciliation.
 
 
 Let's make a new file for it in `client/src/app/layerSelectors.js`.
@@ -503,20 +501,17 @@ Note:
 
 
 Selectors typically fall into two categories:
-Base selectors read from the `db` directly. They perform return minimal transformations, if any.
-Often, they're just doing the equivalent of `db.foo.bar`. That's ok!
-There are two main reasons to use them, one related to computer performance, the other to developer performance.
-1. Defining even the simplest of getters as function and using them in a selector chain means they will be memoized, ensuring
-any computation they perform will be run at most one time per `db` state change.
-2. We can easily change how a function like `getStores` works. We might later want to get the stores from `db.walmart.stores`.
-As long as it returns the same thing it did before, all computations derived from it are guaranteed to work.
+- Base selectors read from the `db` directly. They perform return minimal transformations, if any. Often, they're just doing the equivalent of `db.foo.bar`. That's ok! There are two main reasons to use them, one related to computer performance, the other to developer performance.
+    1. Defining even the simplest of getters as function and using them in a selector chain means they will be memoized, ensuring
+    any computation they perform will be run at most one time per `db` state change.
+    2. We can easily change how a function like `getStores` works. We might later want to get the stores from `db.walmart.stores`.
+    As long as it returns the same thing it did before, all computations derived from it are guaranteed to work.
 
-The other category of selectors are "derived". They chain off of and depend upon the return value of other selector functions.
+- The other category of selectors are "derived". They chain off of and depend upon the return value of other selector functions.
 By this we mean their inputs are base selectors, other derived selectors, or a combination of both.
 
-The `derive` function lets us define a new selector with explicit inputs. It's generally not possible or desired to
-use `derive` with the whole `db` state. Instead, we exclude everything that's irrelevant
-to the function we're defining and only work with the data we care about.
+  - The `derive` function lets us define a new selector with explicit inputs. It's generally not possible or desired to use `derive` with the whole `db` state.
+  - Instead, we exclude everything that's irrelevant to the function we're defining and only work with the data we care about.
 
 We'll show more complex examples of derive in the "toggling layer visibility section".
 
