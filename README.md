@@ -1,11 +1,29 @@
 # MIT-CAVE monorepo
 CAVE Open Source Application Development Repo
 
-## Installation
-
+## Requirements
 Requirements:
 - `node@10.16.0` or higher
 - `npm@6.9.0` or higher
+
+## Instalation for general use
+1) Globally install `create-cave-app`:
+  ```bash
+  npm install -g create-cave-app
+  ```
+2) Create a new application:
+  ```bash
+  cd /path/to/project/folder
+  create-cave-app new myapp
+  ```
+  - This creates a `base` `cave-app` framework for development purposes. Extensions for the `base` framework are in development.
+
+3) Check out the documentation for getting your application operational:
+  - [base](https://github.com/mit-cave-open/cave-app/tree/master/examples/base)
+
+
+
+## Installation for source code development
 
 From a freshly-cloned repo in the project root:
 ```bash

@@ -1,6 +1,6 @@
-# cave-app-template
+# cave-app
 
-Template for jumpstarting CAVE applications.
+Template for jump starting CAVE applications.
 
 ## Features
   * Scenario management
