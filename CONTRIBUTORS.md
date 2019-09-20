@@ -9,6 +9,8 @@
   - Core Architecture
   - UI
   - General
+- Austin Lee
+  - UI
 - Connor Makowski
   - Project Management
   - Core Architecture
@@ -44,7 +46,5 @@
   - General
 - Tim Russell
   - General
-- Austin Lee
-  - UI
 - Rasheed Bustamam
   - UI
