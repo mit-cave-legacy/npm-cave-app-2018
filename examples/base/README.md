@@ -53,9 +53,13 @@ npm run dev
 
 - Notes:
   - There are known issues with filewatchers in Atom when running this command in Ubuntu.
-  - You may need to close Atom while starting the app. Once app is started, Atom can be opened again and hotloading should be functional.
+    - You may need to close Atom while starting the app. Once app is started, Atom can be opened again and hotloading should be functional.
+    - You can also allow more filewatchers using:
+    ```
+    sudo sysctl fs.inotify.max_user_watches=32768
+    ```
   - On Unix, if the last instance of the app was not shutdown correctly, an `EADDRINUSE` for the port can occur.
-    - In linux, you can kill a port with `fuser -k 4000/tcp`
+    - In linux, you can kill a port (EG:4000) with `fuser -k 4000/tcp`
 
 Your app should be available at: `localhost:4000`
 
@@ -95,3 +99,6 @@ You can now run the server and the client in production mode:
 cd server && npm start
 open http://localhost:4000
 ```
+
+## Getting Started
+To get started using your newly build cave app, check out the [getting started guide](https://github.com/mit-cave-open/cave-app/tree/master/examples/base/docs/getting-started.md).
