@@ -3,13 +3,18 @@ const path = require('path')
 const {
   MONOREPO_LIBS_DIR,
   MONOREPO_EXAMPLES_DIR,
+  MONOREPO_DOCS_DIR,
   PACKAGE_LIBS_DIR,
   PACKAGE_TEMPLATES_DIR,
+  PACKAGE_DOCS_DIR,
   DEFAULT_LIBS_DIRNAMES,
   TARGET_PROJECT_LIB_FOLDER_NAME
 } = require('./constants')
 const { resolvePath, filesOf, dirsOf, copyWithTempdir } = require('./util')
 
+const copyDocs = () => {
+  fs.copySync(MONOREPO_DOCS_DIR, PACKAGE_DOCS_DIR)
+}
 
 const copyTemplates = () => {
   const excludedPaths = [
@@ -108,10 +113,17 @@ export * from "./util"
   )
 }
 
+const copyDocsIntoTemplates = () => {
+  const templateDirs = dirsOf(PACKAGE_TEMPLATES_DIR)
+  templateDirs.forEach(templateDir =>
+    fs.copySync(PACKAGE_DOCS_DIR, resolvePath(PACKAGE_TEMPLATES_DIR, templateDir, '/docs')))
+}
 const main = () => {
   copyTemplates()
   copyLibs()
+  copyDocs()
   copyLibsIntoTemplates()
+  copyDocsIntoTemplates()
 }
 
 

@@ -17,7 +17,7 @@
     "packages"
   ],
   "scripts": {
-    "clean": "rm -rf packages && rm -rf templates",
+    "clean": "rm -rf packages && rm -rf templates  && rm -rf docs",
     "prepare": "npm run clean && node lib/prepare.js"
   },
   "dependencies": {
