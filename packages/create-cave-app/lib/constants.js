@@ -1,7 +1,7 @@
 const { resolvePath, dirsOf } = require('./util')
 
 const MONOREPO_ROOT = resolvePath(__dirname, './../../..')
-const MONOREPO_EXAMPLES_DIR = resolvePath(MONOREPO_ROOT, 'examples')
+const MONOREPO_EXAMPLES_DIR = resolvePath(MONOREPO_ROOT, 'templates')
 const MONOREPO_EXAMPLE_DIRNAMES = dirsOf(MONOREPO_EXAMPLES_DIR)
 const MONOREPO_LIBS_DIR = resolvePath(MONOREPO_ROOT, 'packages')
 

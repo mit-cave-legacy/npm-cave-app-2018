@@ -19,7 +19,7 @@ Requirements:
   - This creates a `base` `cave-app` framework for development purposes. Extensions for the `base` framework are in development.
 
 3) Check out the documentation for getting your application operational:
-  - [base](https://github.com/mit-cave-open/cave-app/tree/master/examples/base)
+-   [base](https://github.com/mit-cave-open/cave-app/tree/master/templates/base)
 
 
 

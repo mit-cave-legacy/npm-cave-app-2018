@@ -16,7 +16,7 @@ const copyTemplates = () => {
     /node_modules/,
     'dist',
     '.cache',
-    'examples/base/data',
+    'templates/base/data',
     'client/src/mit-cave'
   ]
   fs.copySync(MONOREPO_EXAMPLES_DIR, PACKAGE_TEMPLATES_DIR, (src, dest) => {
