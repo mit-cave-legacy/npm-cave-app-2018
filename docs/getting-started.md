@@ -1334,3 +1334,108 @@ In `client/src/views/Nav.js` we can replace the placeholder dashboard routes wit
   Stores by State
 </NavigationTab>
 ```
+
+# Client synchronization and shared client state
+
+CAVE apps are designed to share client-side settings across multiple clients.
+
+We provide a built-in demonstration of this functionality in the tutorial application with the client's map viewport,
+The map's zoom level, center latitude and longitude, heading, and pitch are sychronized across all users of the app that
+belong to a particular session.
+
+You can toggle this behavior in any CAVE app with the `storeViewportInSession` property in `regMapFeature`'s options, as
+we've done in the tutorial's `client/src/features/index.js`:
+
+```js
+export const {
+  getViewport,
+  getLayerVisibility,
+  DeckGLOverlay,
+  MapControls
+} = regMapFeature(store, {
+  storeViewportInSession: true,
+  getDim,
+  layers: MAP_LAYERS
+})
+```
+
+To see it in action, open the app in two different browser windows or tabs. On the home screen, if you have multiple
+sessions, make sure both tabs join the same one.
+
+![image](https://user-images.githubusercontent.com/9045165/66083618-8c2dbd00-e521-11e9-9c80-aa035e7ddf7c.png)
+
+You be able to pan, zoom, tilt, or change the heading of the map view in one tab and see the same view in the other tab.
+This works for any client connected to the same session being run by the same server.
+
+We can discover how this feature is implemented -- and how to implement other shared client variables -- by tracing
+`storeViewportInSession` through the code.
+
+Using our editor's `go to definition / find usages` functionality on `regMapFeature` we can see that
+`storeViewportInSession` determines whether `getRawViewport` reads from `SESSION_VARS` or `map`, and whether the
+`updateViewport` function is defined as `updateViewportShared` or `updateViewportLocal`:
+
+
+`client/src/mit-cave/map/index.js`
+```js
+const getRawViewport = storeViewportInSession
+    ? R.path([SESSION_VARS, 'viewport'])
+    : R.path(['map', 'viewport'])
+
+const updateViewport = storeViewportInSession
+    ? updateViewportShared
+    : updateViewportLocal
+    
+const updateViewportShared = viewport => ({
+  db: R.assocPath([SESSION_VARS, 'viewport'], viewport),
+  emit: [
+    sessionEvent.CHANGE_VAR,
+    {
+      varName: 'viewport',
+      value: R.pipe(
+        R.toPairs(),
+        R.reject(([key]) => key.startsWith('transition')),
+        R.fromPairs()
+      )(viewport)
+    }
+  ]
+})
+```
+
+The `updateViewportShared` function returns a `framework-x` effect description that will "optimistically" update the
+state of the client it's running on with the next viewport value and `emit` a `sessionEvent.CHANGE_VAR` message to the
+server with a payload of `varName: viewport` (the variable name we're changing) and `value: nextViewportValue`. 
+
+Note: We're omitting any keys that start with 'transition' since they are specific to the viewport animation for this
+client. 
+
+We can find the receiving end of this event on the server by using find-usages/goto definition and see that its handler
+is registered in `server/src/events/sessionEvents.js`:
+```js
+regEventFx(
+  sessionEvent.CHANGE_VAR,
+  // Destructure from the `server-fx` context the server's in-memory `db` state atom 
+  // and the socket-io socket that sent the message 
+  ({ db, socket }, _, { varName, value }) => ({
+  // Set the server's copy of the session's `varName` to `value`
+  // We'll need this when new clients connect or existing clients reconnect in order to inform
+  // them of the shared session values
+    db: updateSessionVar(socket.id, varName, value),
+  //  rebroadcast the `VAR_CHANGED` event to
+  // all clients subscribed to the same session (i.e. "The 'default' session topic")
+  // `rebroadcast` i.e. publish to subscribers of the session topic exclusive of the client who sent the message
+    rebroadcast: [
+  // Use the server's state and the socket's id in order to identify the session the sender belongs to
+      getSessionTopicFor(db, socket.id),
+      sessionEvent.VAR_CHANGED,
+      {
+        varName,
+        value
+      }
+    ]
+  })
+)
+```
+
+We use the `rebroadcast` effect in this case because the client who sent the message has been set up to apply its own
+viewport update locally. In cases where you don't (or don't want to) set the originating client's state optimistically
+beforehand and expect the server to message you back, use `broadcast`.

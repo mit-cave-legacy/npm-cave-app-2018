@@ -58,7 +58,7 @@ export const {
   DeckGLOverlay,
   MapControls
 } = regMapFeature(store, {
-  storeViewportInSession: false,
+  storeViewportInSession: true,
   getDim,
   layers: MAP_LAYERS
 })
