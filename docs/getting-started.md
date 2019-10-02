@@ -783,4 +783,554 @@ In `client/views/control/MapLegend.js` we add another `Toggle` button.
 />
 ```
 
+# Adding a dashboard
 
+CAVE apps ship with two dashboard examples accessible from the UI via the bottom-left:
+
+Dashboards are set up with their own client-side route at `/dashboard/:dashboardId`. 
+
+We'll add a new dashboard from scratch to show how this works.
+
+## Routing
+
+First let's orient ourselves with how the Dashboards show on the page in the first place.
+
+The `App` component in `client/src/views/App.js` is our root React component. Everything that shows on the screen is
+defined within this component somehow or other. ReactDOM mounts it to the DOM directly when the application starts in
+`client/src/index.js`, which is the root client file. 
+
+`client/src/index.js`
+```js
+ReactDOM.render(
+  <Provider
+    getState={getState}
+    dispatch={dispatch}
+    subscribeToState={subscribeToState}
+  >
+    <App />
+  </Provider>,
+  document.getElementById('root')
+)
+```
+
+Note: `Provider` is technically outermost React component. It gives the tree of components nested within it with the
+ability to subscribe to the `db` via `component` and `createSub`, but it doesn't render any application-specific components. 
+
+The `App` component determines what to render based upon the current route state in the `db`: 
+
+`client/src/views/App.js`
+```js
+const App = component(
+  'App',
+  createSub({
+    getInitialDataReady,
+    getRouteId,
+    getRouteArgs,
+    getIsConnected
+  }),
+  ({ routeId, isConnected }) => (
+    <Div
+      css={{
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: theme.radiantGraphite,
+        color: theme.offWhite
+      }}
+    >
+      <FlatNav visible={routeId !== routeIds.SESSIONS} />
+      {invoke(() => {
+        switch (routeId) {
+          case routeIds.DASHBOARD:
+            return <Dashboard />
+          case routeIds.MAP:
+            return <Map />
+          case routeIds.SESSIONS:
+            return <Sessions />
+          default:
+            return <RouteNotFound />
+        }
+      })}
+      {!isConnected && <DisconnectedMask />}
+    </Div>
+  )
+)
+```
+
+The `switch` statement returns components that are effectively pages. They will more or less take up the entire screen.
+
+Client-side routes are defined in `client/src/routes.js`. 
+
+```js
+export const routeIds = {
+  ROOT_INCOMPLETE: 'root-incomplete',
+  MAP: 'map',
+  DASHBOARD_ROOT: 'dashboard-root',
+  DASHBOARD: 'dashboard',
+  SESSIONS: 'sessions',
+  SESSION_ROOT: 'session-root'
+}
+export const routes = [
+  {
+    id: routeIds.ROOT_INCOMPLETE,
+    path: '/',
+    action: () => ({
+      redirect: ['sessions']
+    })
+  },
+  {
+    id: routeIds.SESSION_ROOT,
+    path: '/session/:sessionId',
+    action: ({ params }) => ({
+      redirect: ['map', { sessionId: params.sessionId }]
+    })
+  },
+  {
+    id: routeIds.MAP,
+    path: '/session/:sessionId/map'
+  },
+  {
+    id: routeIds.DASHBOARD_ROOT,
+    path: '/session/:sessionId/dashboard',
+    action: ({ params }) => {
+      return {
+        redirect: [
+          'dashboard',
+          { sessionId: params.sessionId, dashboardId: 'a' }
+        ]
+      }
+    }
+  },
+  {
+    id: routeIds.DASHBOARD,
+    path: '/session/:sessionId/dashboard/:dashboardId'
+  },
+  {
+    id: routeIds.SESSIONS,
+    path: '/sessions'
+  }
+]
+```
+
+`routeIds` are constants used to identify each route the app has. `routes` defines the mapping between them and their
+URLs, e.g. `{ id: routeIds.DASHBOARD, path: '/session/:sessionId/dashboard/:dashboardId' }`. The syntax `:dashboardId`
+denotes a parameter. Like a function parameter, it's replaced with a value when the path is matched, e.g.
+`/session/default/dashboard/a` substitutes `default` for `:sessionId` and `a` for `:dashboardId`. Parameters are
+accessible as a map of `{[parameterName]: parameterValue}` at `db.router.match.params` or the `getRouteArgs` selector
+exported by `mit-cave/routes`.
+
+As we saw above, the`Dashboard` component in `client/src/views/dashboard/Dashboard.js` is rendered whenever the routeId
+is `routeIds.DASHBOARD`. Looking at its source shows a pattern similar to the one in `App`:
+
+```js
+const switchDashboard = (dashboardId, topNav) => {
+  switch (dashboardId) {
+    case 'a':
+      return <DashboardA topNav={topNav} />
+    case 'b':
+      return <DashboardB topNav={topNav} />
+    default:
+      return `Dashboard "${dashboardId}" not found`
+  }
+}
+
+export const Dashboard = component(
+  'Dashboard',
+  createSub({
+    getRouteArgs,
+    getTopNav: derive(getOverallLayout, R.equals('top'))
+  }),
+  ({ routeArgs, topNav }) => (
+    <Div>
+      <Div
+        css={{
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+          backgroundColor: theme.radiantGraphite
+        }}
+      >
+        {switchDashboard(routeArgs.dashboardId, topNav)}
+      </Div>
+    </Div>
+  )
+)
+```
+Just like `App` chooses what page-level component to render as a function of `routeId`, `Dashboard` chooses which
+dashboard component to render as a function of`routeArgs`.
+
+Let's add a new dashboard that takes up the whole screen called `"stores"`. 
+
+Create a new file `client/src/views/dashboard/StoresDashboard.js` using `FruitsLineChart` as a placeholder chart:
+
+```js 
+import { FullScreenContainer } from 'mit-cave' import { component } from 'framework-x' import React from 'react'
+import { FruitsLineChart } from './FruitsLineChart'
+
+export const StoresDashboard = component('StoresDashboard', ({ topNav }) => (
+  <FullScreenContainer topNav={topNav}>
+    <FruitsLineChart />
+  </FullScreenContainer>
+))
+```
+
+Update `switchDashboard` in `client/src/views/dashboard/Dashboard.js` to render it when the dashboardId route param is
+`stores`:
+
+```js
+const switchDashboard = (dashboardId, topNav) => {
+  switch (dashboardId) {
+    case 'a':
+      return <DashboardA topNav={topNav} />
+    case 'b':
+      return <DashboardB topNav={topNav} />
+    case "stores":
+      return <StoresDashboard topNav={topNav} />
+    default:
+      return `Dashboard "${dashboardId}" not found`
+  }
+}
+```
+
+You should be able to see the full screen dashboard at `localhost:4000/session/default/dashboard/stores`
+![image](https://user-images.githubusercontent.com/9045165/65789095-6fece300-e111-11e9-98d8-4302bcc901ac.png)
+
+
+## Adding a chart
+Let's build a custom chart for the Walmart dataset of a stacked bar chart showing the quantity of each types of stores
+in each state.
+
+As we go along it can be helpful to reference the visual of the finished chart, which looks like this:
+![image](https://user-images.githubusercontent.com/9045165/66053624-80bda000-e4e7-11e9-9686-28af1f0e4555.png)
+
+For each state, we'll render a bar for each store type, represented by the colored bar segments. The y value of the bar
+segments will be equal to the number of stores for that type. This means if we take all bar segments and add their y
+values,  we should get the total number of stores in the state.
+
+
+Add a new file in `client/src/views/dashboard/StoresStackedBarChart.js`. We've created this tutorial by copying the full
+contents of `FruitsLineChart` and modifying it.
+
+We suggest copying in the finished code and following along as we walk through it.
+
+```js
+import {
+  Autosized,
+  CaveChart,
+  LegendKey,
+  MultiViz,
+  VerticalLegend,
+  Viz,
+  VizHeader
+} from 'mit-cave'
+import * as R from 'ramda'
+import { component, createSub, derive } from 'framework-x'
+import React from 'react'
+import {
+  HorizontalGridLines,
+  VerticalBarSeries,
+  VerticalGridLines,
+  XAxis,
+  XYPlot,
+  YAxis
+} from 'react-vis'
+import { getStores } from '../../stores/selectors'
+
+const defaultColorsHex = [
+  '#19CDD7',
+  // '#DDB27C',
+  // '#88572C',
+  '#FF991F',
+  '#F15C17',
+  '#223F9A',
+  '#DA70BF',
+  '#125C77',
+  '#4DC19C',
+  // '#776E57',
+  // '#12939A',
+  // '#17B8BE',
+  // '#F6D18A',
+  '#B7885E',
+  '#FFCB99',
+  '#F89570',
+  '#829AE3',
+  '#E79FD5',
+  '#1E96BE',
+  '#89DAC1',
+  '#B3AD9E'
+]
+const pickColor = (k, cache, index, colors) => {
+  const picked = cache[k]
+  if (picked) return picked
+  const color = colors[index.value]
+  index.value = (index.value + 1 > colors.length - 1)
+                ? 0
+                : index.value + 1
+  cache[k] = color
+  return color
+}
+
+export const makeColorPicker = (colors) => {
+  let cache = {}
+  let index = { value: 0 }
+  return k => pickColor(k, cache, index, colors)
+}
+
+const storeColor = makeColorPicker(defaultColorsHex)
+
+const StoresChartInternal = ({
+  width, height, xAxisTitleProp, yAxisTitleProp, data
+}) => {
+  return (
+    <CaveChart>
+      <XYPlot width={width} height={height}
+              stackBy={'y'}
+              xType={'ordinal'}
+      >
+        <HorizontalGridLines />
+        <VerticalGridLines style={{ stroke: 'none' }} />
+        <XAxis title={xAxisTitleProp} />
+        <YAxis title={yAxisTitleProp} />
+        {R.chain(([state, storeTypesToCount]) => {
+          return R.values(R.mapObjIndexed((count, storeType) => {
+            return <VerticalBarSeries
+              key={`${state}/${storeType}`}
+              data={[{ x: state, y: count }]}
+              stroke={'none'}
+              fill={storeColor(storeType)}
+            />
+          }, storeTypesToCount))
+        }, Object.entries(data))}
+      </XYPlot>
+    </CaveChart>
+  )
+}
+
+export const StoresChartOnly = component(
+  'StoresChartOnly',
+  createSub({ stores: getStores }),
+  ({ width, height, stores }) => {
+    const byState = R.groupBy(R.prop('state'), stores)
+    const byStateAndStoreType = R.map(R.groupBy(R.prop('storeType')), byState)
+    const byStateAndStoreTypeCounts = R.map(R.map(R.length), byStateAndStoreType)
+
+    return (
+      <StoresChartInternal
+        width={width}
+        height={height}
+        data={byStateAndStoreTypeCounts}
+        xAxisTitleProp={'U.S. States'}
+        yAxisTitleProp={'# of stores'}
+      />
+    )
+  })
+
+const getStoresLegend = derive([getStores],
+  stores =>
+    R.map(
+      R.zipObj(['title', 'color']),
+      R.map(R.juxt([R.prop('name'), R.compose(storeColor, R.prop('storeType'))]),
+        R.uniqBy(R.prop('storeType'),
+          stores))))
+
+export const StoresChart = component(
+  'StoresChart',
+  createSub({ legend: getStoresLegend }),
+  ({ name, description, legend }) => (
+    <MultiViz
+      css={{
+        height: 800
+      }}
+    >
+      <Viz>
+        <VizHeader title={name} subtitle={description} />
+        <Autosized>
+          <StoresChartOnly />
+        </Autosized>
+      </Viz>
+      <VerticalLegend>
+        {legend.map(({ color, title }) => (
+          <LegendKey key={title} title={title} color={color} />
+        ))}
+      </VerticalLegend>
+    </MultiViz>
+  )
+)
+
+```
+
+The `StoreChartInteral` component is responsible for rendering the chart using `react-vis`. It requires data in a
+particular format provided by its parent components derived from the raw Walmart store data returned by `getStores`,
+which is an array of objects with this shape:
+```json
+{
+  "id": 6601,
+  "storeType": 3,
+  "timeZone": "K",
+  "openDate": "01/04/1994 12:00",
+  "name": "Sam's Club",
+  "postalCode": "99515",
+  "address1": "8801 Old Seward Hwy",
+  "city": "Anchorage",
+  "state": "AK",
+  "country": "US",
+  "latitude": 61.14076995,
+  "longitude": -149.86001586,
+  "phone_number": "(907) 522-2333"
+}
+```
+
+From this, we need to instruct `react-vis` to render `state` (S) on the x-axis, then for each `storeType` (T) to render
+a bar of size N and color C, where N is equal to the count of `storeType` T in S. o Vertical stacked bar charts in
+`react-vis` are rendered by specifying a `stackBy` property of `y` on `XYPlot`. This means for every `x`, any `y` value
+associated with that particular `x` value (e.g. `"MA"`) will be stacked on top of with a magnitude equal to its value
+(`y`). This ultimately forms a single bar for `x` equal to `Y`, the sum of all `y` values for `x`. 
+
+Because `react-vis` expects data to be formatted as `{x, y}` pairs, we need to think in these terms. Doing so is
+somewhat misleading for this chart, however, since there is 3rd dimension for the type of store being counted as `y`
+that will be represented as a particular color.
+
+At the least, independent of the chart or `react-vis`'s API, we want to know what stores are in each state:
+
+```js 
+// {state -> stores[]}
+const byState = R.groupBy(R.prop('state'), stores)
+```
+This creates a map that associates each state value in stores with the stores matching that value.
+
+We further know we want to know the store types within each state.
+```js 
+// {state -> stores[]} => {state -> storeType -> stores[]}
+const byStateAndStoreType = R.map(R.groupBy(R.prop('storeType')), byState)
+```
+`R.map` on a Javscript Object acts as a "mapValues" function. Here, it maps the same `groupBy` operation as above on all
+stores within a state, returning the original map with its values as the return value of `groupBy` "storeType" --
+another map.
+
+Ultimately, we want to know how many of each store type in each state. Because the value of state->storeType is an array
+of stores, the number of stores in a particular state of a particular store type is equal to length of the array at that
+path.
+```js 
+// {state -> storeType -> stores[]}  => {state -> storeType -> number of stores of this type in this state}
+const byStateAndStoreTypeCounts = R.map(R.map(R.length), byStateAndStoreType)
+```
+We again leverage `R.map`'s `mapValues` behavior to apply the `length` function to the stores array. The first `R.map`
+applies the second `R.map` to its values. Since that's another map, the length function is applied to its values. Both
+object structures are unaffected -- we're only applying functions to the values of each key in each map. The first and
+second map functions are called with objects and return objects, so nothing modifies the nested structure .
+
+With the resulting data structure, we have mappings like "MA" (state) -> 42 (storeType) -> 3 (count). Hopefully this
+bears some resemblance to how you might think about what we're representing. Reading it backwards, "There are 3 store
+type 42s in Massachusetts." Or forwards, "In Massachusetts, how many 42 type stores are there?" "3". 
+
+With this structure, the application can easily and efficiently answer other questions about the dataset if desired. How many
+states are in the dataset? `R.length(R.keys(data)))` How many store types are in Massachusetts? `R.length(
+R.keys(R.prop("MA", data))`
+
+
+
+When we provide our chart with this data, there's a little more work required to get it to render correctly. For one, we
+need to color the bar segments. We've built a simple color picker that maps its argument to a color by storing its
+arguments in a map and returning a color for which it has a mapping or creating a new mapping for and returning the
+color. We'll use this function to get the same color for a store type.
+
+With this and our data we have everything we need to render the chart.
+
+```js
+const storeColor = makeColorPicker(defaultColorsHex)
+
+const StoresChartInternal = ({
+  width, height, xAxisTitleProp, yAxisTitleProp, data
+}) => {
+  return (
+    <CaveChart>
+      <XYPlot width={width} height={height}
+              stackBy={'y'}
+              xType={'ordinal'}
+      >
+        <HorizontalGridLines />
+        <VerticalGridLines style={{ stroke: 'none' }} />
+        <XAxis title={xAxisTitleProp} />
+        <YAxis title={yAxisTitleProp} />
+        {R.chain(([state, storeTypesToCount]) => {
+          return Object.entries(storeTypesToCount).map(([storeType,count]) => {
+            return <VerticalBarSeries
+              key={`${state}/${storeType}`}
+              data={[{ x: state, y: count }]}
+              stroke={'none'}
+              fill={storeColor(storeType)}
+            />
+          }, storeTypesToCount)
+        }, Object.entries(data))}
+      </XYPlot>
+    </CaveChart>
+  )
+}
+```
+
+A few things to note on iterating over our data. The keys of our maps contain important information for our chart, so we
+need to be able to access them when iterating over them. Further, we need to map an object of objects to a list of React
+components. We use `R.chain` (i.e. "flat map"). This allows us to write a function that returns an array of arrays in one
+list.
+
+We use Object.entries to give us a list of `[key,value]` pairs from our `state->storeType->count` data as `[state,
+storeTypesToCount]`. We then map the entries of `storeTypesToCount` as `[storeType, count]` to a `VerticalBarSeries`
+where `x` is the state, `y` is the `count`, and the color is a function of `storeType`.
+
+For the legend, we can use the `@mit-cave/ui` components `VerticalLegend` and `LegendKey` as provided in other charts.
+All we need are a list of `{color, title}` pairs. 
+
+Here is one way to obtain a legend from our store data:
+
+```js
+const getStoresLegend = derive([getStores],
+  stores =>
+    R.map(
+      // map the list of [name,color] and create an object for each {title:name,  color: color} 
+      R.zipObj(['title', 'color']),
+      //  map the juxtaposition of its name and it's store type into our color function
+      // returns [name, color] for each unique store (`juxt` applies its list of functions to its arguments one at a time, returning the result of each function in order as a list)
+      R.map(R.juxt([R.prop('name'), R.compose(storeColor, R.prop('storeType'))]),
+        // return the list as a set of objects with distinct "storeType"s (doesn't matter which we get, just eliminate duplicates)
+        R.uniqBy(R.prop('storeType'), 
+        //take all stores
+          stores)))) 
+```
+
+
+```js
+export const StoresChart = component(
+  'StoresChart',
+  createSub({ legend: getStoresLegend }),
+  ({ name, description, legend }) => (
+    <MultiViz
+      css={{
+        height: 800
+      }}
+    >
+      <Viz>
+        <VizHeader title={name} subtitle={description} />
+        <Autosized>
+          <StoresChartOnly />
+        </Autosized>
+      </Viz>
+      <VerticalLegend>
+        {legend.map(({ color, title }) => (
+          <LegendKey key={title} title={title} color={color} />
+        ))}
+      </VerticalLegend>
+    </MultiViz>
+  )
+)
+```
+
+Finally we can change our navigation to reflect our new chart.
+
+In `client/src/views/Nav.js` we can replace the placeholder dashboard routes with our new one:
+
+```js
+<NavigationTab value={[routeIds.MAP, {}]}>Map</NavigationTab>
+<NavigationTab value={[routeIds.DASHBOARD, { dashboardId: 'stores' }]}>
+  Stores by State
+</NavigationTab>
+```

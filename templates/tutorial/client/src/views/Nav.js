@@ -41,11 +41,8 @@ export const FlatNavInner = component(
       }}
     >
       <NavigationTab value={[routeIds.MAP, {}]}>Map</NavigationTab>
-      <NavigationTab value={[routeIds.DASHBOARD, { dashboardId: 'a' }]}>
-        Dashboard A
-      </NavigationTab>
-      <NavigationTab value={[routeIds.DASHBOARD, { dashboardId: 'b' }]}>
-        Dashboard B
+      <NavigationTab value={[routeIds.DASHBOARD, { dashboardId: 'stores' }]}>
+        Stores by State
       </NavigationTab>
     </TabSelector>
   )

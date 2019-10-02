@@ -9,6 +9,7 @@ import { getOverallLayout } from '../../subs'
 import { DashboardA } from './DashboardA'
 import { DashboardB } from './DashboardB'
 import { getRouteArgs } from '../../features'
+import { StoresDashboard } from './StoresDashboard'
 
 const switchDashboard = (dashboardId, topNav) => {
   switch (dashboardId) {
@@ -16,6 +17,8 @@ const switchDashboard = (dashboardId, topNav) => {
       return <DashboardA topNav={topNav} />
     case 'b':
       return <DashboardB topNav={topNav} />
+    case "stores":
+      return <StoresDashboard topNav={topNav} />
     default:
       return `Dashboard "${dashboardId}" not found`
   }
