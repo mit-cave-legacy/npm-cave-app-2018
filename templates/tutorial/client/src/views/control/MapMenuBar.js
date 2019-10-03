@@ -38,7 +38,7 @@ export const MapMenuBar = component(
       >
         Manage edits
       </MenuBarButton>
-      {/*<RunModelButton />*/}
+      <RunModelButton />
       <MenuBarButton
         icon={<IconKeypad />}
         title="Map Legend"

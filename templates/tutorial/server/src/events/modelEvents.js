@@ -45,7 +45,7 @@ regEventFx(
       const timestamp = Date.now()
       const scenario = await getScenario(id)
       const version = scenario._version
-      const filePath = resolve(__dirname, '../../run-model/run-model.js')
+      const filePath = resolve(__dirname, './../run-model/run-model.js')
       const modelRun = {
         timestamp,
         scenarioId: scenario.id,

@@ -32,7 +32,7 @@ export const regModelFeature = ({ regEventFx }, {
   )
   const getModelRunOutput = derive(getModelRun, R.propOr([], 'output'))
   const getLastRunSummary = derive(getLastRun, lastRun => {
-    if (!lastRun) return 'never ran'
+    if (!lastRun) return 'never'
     if (lastRun.error) return 'error on last run'
     return `${distanceInWordsToNow(lastRun.timestamp)} ago`
   })

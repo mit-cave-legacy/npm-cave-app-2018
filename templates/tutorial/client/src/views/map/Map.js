@@ -9,10 +9,8 @@ import { GroundRadial } from '../control/GroundRadial'
 import { ControlOverlay } from './ControlOverlay'
 import { DeckGLOverlay } from '../../features'
 
-// Set your mapbox token here
-// const MAPBOX_TOKEN = process.env.MapboxAccessToken // eslint-disable-line
-const MAPBOX_TOKEN =
-  'pk.eyJ1IjoiYWJ1c3RhbWFtMSIsImEiOiJjamZ2cHR0eXk0MTZpMzNtc25ycWMxbW16In0.pxTjZY0-q7o3tMRCE5UGkg'
+const MAPBOX_TOKEN = process.env.MapboxAccessToken // eslint-disable-line
+
 export default component(
   'Map',
   createSub({
