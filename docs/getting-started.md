@@ -1339,7 +1339,7 @@ In `client/src/views/Nav.js` we can replace the placeholder dashboard routes wit
 
 CAVE apps are designed to share client-side settings across multiple clients.
 
-We provide a built-in demonstration of this functionality in the tutorial application with the client's map viewport,
+We provide a built-in demonstration of this functionality in the tutorial application with the client's map viewport.
 The map's zoom level, center latitude and longitude, heading, and pitch are sychronized across all users of the app that
 belong to a particular session.
 
