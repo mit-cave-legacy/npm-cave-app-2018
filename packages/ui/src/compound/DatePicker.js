@@ -10,7 +10,7 @@ import './DatePickerStyle/variables.css'
 
 // CSS Modules, react-datepicker-cssmodules.css
 // import 'react-datepicker/dist/react-datepicker-cssmodules.css';
-import 'react-datepicker/dist/react-datepicker.min.css'
+// import 'react-datepicker/dist/react-datepicker.min.css'
 
 // Examples of different kinds of date-picker: https://reactdatepicker.com/#example-18
 
