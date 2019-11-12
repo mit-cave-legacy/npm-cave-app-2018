@@ -3,14 +3,14 @@ import React, { Component } from 'react'
 import DatePicker from 'react-datepicker'
 
 import { pxScale } from '../theme'
-// import './DatePickerStyle/DatePicker-cssmodules.css'
-// import './DatePickerStyle/DatePicker.css'
-// import './DatePickerStyle/mixins.css'
-// import './DatePickerStyle/variables.css'
+import './DatePickerStyle/DatePicker-cssmodules.css'
+import './DatePickerStyle/DatePicker.css'
+import './DatePickerStyle/mixins.css'
+import './DatePickerStyle/variables.css'
 
 // CSS Modules, react-datepicker-cssmodules.css
 // import 'react-datepicker/dist/react-datepicker-cssmodules.css';
-import 'react-datepicker/dist/react-datepicker.min.css';
+import 'react-datepicker/dist/react-datepicker.min.css'
 
 // Examples of different kinds of date-picker: https://reactdatepicker.com/#example-18
 
