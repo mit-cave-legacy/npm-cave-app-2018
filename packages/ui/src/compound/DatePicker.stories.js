@@ -11,7 +11,7 @@ storiesOf(compound('DatePicker'), module)
   .add('Only Time', () => <DatePickerCAVE onlyTime />)
   .add('With Time', () => <DatePickerCAVE withTime />)
   .add('With Range', () => <DatePickerCAVE withRange />)
-  .add('In Pad', () =>
+  .add('In Pad', () => (
     <Pad
       x={500}
       y={500}
@@ -19,6 +19,8 @@ storiesOf(compound('DatePicker'), module)
       onDragMove={() => {}}
       onDragEnd={() => {}}
       iconRight={<IconCancel />}
-      title="Scenario Library">
+      title="Scenario Library"
+    >
       <DatePickerCAVE withRange />
-    </Pad>)
+    </Pad>
+  ))
