@@ -1,5 +1,4 @@
 import { Div } from 'glamorous'
-import moment from 'moment'
 import React, { Component } from 'react'
 import DatePicker from 'react-datepicker'
 
@@ -11,6 +10,7 @@ import './DatePickerStyle/variables.css'
 
 // CSS Modules, react-datepicker-cssmodules.css
 // import 'react-datepicker/dist/react-datepicker-cssmodules.css';
+// import 'react-datepicker/dist/react-datepicker.min.css'
 
 // Examples of different kinds of date-picker: https://reactdatepicker.com/#example-18
 
@@ -19,8 +19,8 @@ export class DatePickerCAVE extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      startDate: moment(),
-      endDate: moment()
+      startDate: new Date(),
+      endDate: new Date()
     }
 
     this.handleChange = this.handleChange.bind(this)
@@ -108,7 +108,7 @@ export class DatePickerCAVE extends Component {
     } else {
       return (
         <DatePicker
-          minDate={moment()}
+          minDate={new Date()}
           selected={this.state.startDate}
           onChange={this.handleChange}
         />

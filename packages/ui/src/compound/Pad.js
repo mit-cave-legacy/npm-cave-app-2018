@@ -41,7 +41,7 @@ const DraggableRoot = styled('div')(
     flexDirection: 'column',
     alignItems: 'stretch',
     borderRadius: standardBorderRounding,
-    overflow: 'hidden',
+    overflow: 'visible',
     background: radiantGraphite,
     transition: 'opacity 0.4s'
   },
@@ -56,7 +56,7 @@ const DraggableRoot = styled('div')(
 const DragBody = styled('div')({
   label: 'cave-draggable-body',
   height: '100%',
-  overflow: 'hidden',
+  overflow: 'visible',
   '&>:first-child': {
     height: '100%'
   }
@@ -76,7 +76,10 @@ export const DragBarRoot = styled('div')(
     userSelect: 'none',
     '&>:first-child,&>:last-child': {
       cursor: 'pointer'
-    }
+    },
+    borderBottomLeftRadius:standardBorderRounding,
+    borderBottomRightRadius:standardBorderRounding,
+    zIndex: -1
   },
   ({ dragging }) => ({
     cursor: dragging ? 'grabbing' : 'grab',

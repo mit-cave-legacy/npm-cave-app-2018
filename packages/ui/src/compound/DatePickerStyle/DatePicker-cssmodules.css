@@ -240,6 +240,9 @@
   padding: 0;
   border: 0.45rem solid transparent;
   z-index: 1;
+  height: 10px;
+  text-indent: -999em;
+  overflow: hidden;
 }
 :global .react-datepicker__navigation--previous {
   left: 10px;
@@ -293,6 +296,7 @@
 :global .react-datepicker__month-container {
   background-color: #1c1e24;
   float: left;
+  border-radius: 0.3rem;
 }
 
 :global .react-datepicker__month {
