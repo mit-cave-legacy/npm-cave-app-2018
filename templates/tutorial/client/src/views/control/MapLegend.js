@@ -1,6 +1,8 @@
 import { Form, Pad } from 'mit-cave'
 import { component } from 'framework-x'
 import React from 'react'
+import { appEvent } from '../../app/eventTypes'
+import { isDarkMode, isScenarioSelected } from '../../app/selectors'
 import { createSub } from '../../common'
 import {
   getLayerVisibility,
@@ -15,11 +17,12 @@ const PAD_ID = 'mapLegend'
 export const MapLegend = component(
   'MapControls',
   createSub({
+    isScenarioSelected,
+    isDarkMode,
     getLayerVisibility,
     pad: getPad(PAD_ID)
   }),
-  ({ pad, layerVisibility }) => {
-
+  ({ pad, layerVisibility, isScenarioSelected, isDarkMode }) => {
     return (
       <Pad
         size="small"
@@ -37,6 +40,13 @@ export const MapLegend = component(
             value={layerVisibility["ctl"]}
             onChange={value => dispatch(mapEvent.CHANGE_LAYER_VISIBILITY, ["ctl", value])}
           />
+          {isScenarioSelected &&
+           <Toggle
+             label={"Dark mode"}
+             value={isDarkMode}
+             onChange={value => dispatch(appEvent.SET_DARK_MODE, value)}
+           />
+          }
         </Form>
       </Pad>
     )

@@ -1439,3 +1439,241 @@ regEventFx(
 We use the `rebroadcast` effect in this case because the client who sent the message has been set up to apply its own
 viewport update locally. In cases where you don't (or don't want to) set the originating client's state optimistically
 beforehand and expect the server to message you back, use `broadcast`.
+
+
+# Persisting scenario values
+
+`session`s are a good way to synchronize shared, ephemeral values that you're ok losing whenever the server is
+restarted, like the position of the viewport. For values you want to hold on to, we can persist them to the filesystem.
+The most common way is to associate them with a particular `scenario`. This has several advantages. The server loads the
+scenario from the filesystem whenever a client loads one from the Scenario Library component. Multiple clients can load
+the same scenario, allowing them to use the same persisted value. What's more, when one client changes a value, the
+change will be propagated to all other clients viewing the same scenario.
+
+Scenarios also allow users to organize and save data they care about. Typically, they're a set of values unique to a
+particular situation under consideration. Data isn't shared between different scenarios, so switching from one to another
+will typically render different visualizations and settings, like values for a ML model that users can configure through
+your app.
+
+When switching scenarios, session values remain the same: For a CAVE app that stores the viewport in its session,
+changing scenarios will not affect the viewport. 
+
+For an example, let's allow a user to set the map to dark or light. To try to keep things simple we'll use the UI to
+create two scenarios called "Scenario A" and "Scenario B". 
+
+Note: You could name them "Dark" and "Light", but we want to emphasize that this setting is editable -- the scenario
+with dark mode can become one without it and vice versa. 
+
+Next we'll add a pad with a toggle button labeled "Dark mode". When it's on, the map will use a dark theme, otherwise a
+lighter one. Ultimately, we'll be able to switch between Scenario A and B and see that each have different values for
+Dark mode. We'll also be able to restart our server and have our app remember the setting for each scenario. We'll be
+able to open two browser tabs to simulate two clients simultaneously working on Scenario A, toggle "Dark mode" in one
+and see the map color in both. Lastly, we can verify that changes to one scenario do not affect another by opening
+Scenario A in one tab and Scenario B in the other, then observing that the map only changes color in the tab we're in.
+
+## Adding the toggle
+
+We can add the toggle to the existing map legend component. Because dark mode is tied to a scenario, we only want to
+show the dark mode toggle when the user has a scenario selected. Let's define a function that does that for us. We'll be
+defining a few selectors that are specific to our application, so we'll create a new folder under the `client/src`
+directory called `app` and follow the general file pattern we use elsewhere, creating these files inside it:
+`selectors.js`, `events.js`, `eventTypes.js`. 
+
+In the `app/selectors.js`, we know we need a function tells us whether the user has selected a scenario or not. We're
+going to call it `isScenarioSelected` to follow the Javascript convention of names that start with `are/is` indicating a
+boolean value. 
+
+We know what we want at a high level. We can write that out, then think about how to write the code for it to work
+within our application.
+
+```js
+export const isScenarioSelected = () => {}
+```
+
+Logically we need to find if there's a scenario selected. We can use the selector that's already been defined from
+`@mit-cave/scenario` called `getCurrentScenarioId` to return the id of the selected scenario from the session and
+compose it with `Boolean` to always return `true` or `false`.
+
+```js
+ export const isScenarioSelected = derive(getCurrentScenarioId, Boolean)
+``` 
+
+We can use this to conditionally render the dark mode toggle when a scenario is selected.
+
+
+Thinking ahead, we need to know whether dark mode is enabled or not for the toggle to reflect the correct value. Since
+we want dark mode to be part of scenario, we can create a selector that reads from the current scenario and finds the
+value of the key we want to use for the dark mode's value. We'll use `isDarkMode`, again following the Boolean naming
+convention in Javascript:
+
+```js
+ export const isDarkMode = derive(getCurrentScenario, R.path(['isDarkMode']))
+```
+
+There's a few problems with this, however. The `isDarkMode` key may not exist on the current scenario, and when it
+doesn't, our `isDarkMode` selector will return `undefined`. By default, CAVE app maps use dark mode. Let's say we want
+to keep it that way. We could initialize our scenarios with a `false` value for `isDarkMode` by changing the way the
+client creates scenarios to write the key value on creation. The approach we'll take here is to provide the default
+value of `false` in the selector. If `currentScenario.isDarkMode` returns `null` or `undefined`, our `isDarkMode`
+selector will return `false`. If the value of `currentScenario.isDarkMode` is anything else, we'll get that value.
+
+
+```js
+export const isDarkMode = derive(getCurrentScenario, R.pathOr(false, ['isDarkMode']))
+```
+
+We use these selectors in the map legend component to conditionally render anther Toggle for dark mode when there is a
+scenario selected.
+
+```js
+export const MapLegend = component(
+  'MapControls',
+  createSub({
+    isScenarioSelected,
+    isDarkMode,
+    getLayerVisibility,
+    pad: getPad(PAD_ID)
+  }),
+  ({ pad, layerVisibility, isScenarioSelected, isDarkMode }) => {
+    return (
+      <Pad
+        size="small"
+        {...withWiredPadProps({ pad, padId: PAD_ID, defaultX: 0 })}
+        title="Map Legend"
+      >
+        <Form>
+          <Toggle
+            label={"Stores"}
+            value={layerVisibility["stores"]}
+            onChange={value => dispatch(mapEvent.CHANGE_LAYER_VISIBILITY, ["stores", value])}
+          />
+          <Toggle
+            label={"MIT CTL"}
+            value={layerVisibility["ctl"]}
+            onChange={value => dispatch(mapEvent.CHANGE_LAYER_VISIBILITY, ["ctl", value])}
+          />
+          {isScenarioSelected &&
+           <Toggle
+             label={"Dark mode"}
+             value={isDarkMode}
+             onChange={()=>{}}
+           />
+          }
+        </Form>
+      </Pad>
+    )
+  }
+)
+```
+
+We still need to change the value that `isDarkMode` references before we have a working toggle. Since this is
+app-specific, let's create an event in our app module for it.
+
+
+`client/src/app/eventTypes.js`
+```js
+export const appEvent = { 
+  SET_DARK_MODE: 'app/set-dark-mode' 
+}
+```
+
+When newly added our dark mode toggle is interacted with, we want to dispatch this event. We'll send it with the value
+`isDarkMode` should be set to next by flipping the Boolean value we got from the current value.
+
+```js
+<Toggle 
+  label={"Dark mode"} 
+  value={isDarkMode} 
+  onChange={()=> dispatch(appEvent.SET_DARK_MODE, !isDarkMode)} 
+/>
+```
+
+We then add a handler for when the event is dispatched to describe what should happen.
+
+`@mit-cave/scenario` already provides event handlers for changing a scenario's value. We can take advantage of that here
+by defining our `SET_DARK_MODE` event handler in terms of `scenarioEvent.CHANGE_CURRENT_VALUE`.
+
+```js
+import { scenarioEvent } from 'mit-cave/scenario'
+import { regEventFx } from '../store'
+import { appEvent } from './eventTypes'
+
+
+regEventFx(appEvent.SET_DARK_MODE, (_, __, value) => ({
+  dispatch: [scenarioEvent.CHANGE_CURRENT_VALUE, [['isDarkMode'], value]]
+}))
+```
+
+We could have avoided creating our own event and handler by simply dispatching this from the `onChange` of our toggle.
+But with the approach we've taken, you may notice we've defined part of what our application does in a more meaningful
+way at the event level ("set dark mode" vs. "change scenario value"). We are climbing the ladder of abstraction, in a
+way. "Change scenario value" is a concept our app had before. We've added a new one defined in terms of the old. The
+other approach implicitly defines "set dark mode" within the `onChange` handler of our toggle component. Here, we
+provide an explicit definition with an event that multiple components can reference and one handler that defines how
+it's implemented. If we ever wanted to define "set dark mode" some other way -- as a `session` feature instead of
+`scenario` feature -- we can change it in one place because we defined it explicitly.
+
+We'll need to load our new `client/src/app/events.js` file in `client/src/events/index.js` by adding an import:
+
+```js
+import './diffEvents'
+import './generalEvents'
+import '../stores/events'
+import '../app/events'
+```
+
+Finally, we need to actually change the way the map looks. We'll do this with two different strings corresponding to
+dark and light Mapbox tiles. If you're working through the tutorial manually, you should see the default dark theme as
+the `mapStyle` prop in `client/src/views/map/Map.js`. Replacing "dark" with "light" in the string will give us the light
+theme.
+
+We want a different value depending on whether `isDarkMode` is true or false. So we write a selector that depends on the
+value of `isDarkMode`, and a function that returns the dark map style when it's true, otherwise the light map theme:
+
+`client/src/app/selectors.js` 
+```js
+export const getMapStyle = derive(isDarkMode, (dark) =>
+  `mapbox://styles/mapbox/${dark ? 'dark' : 'light'}-v9`
+)
+```
+
+We can tell the Map component to use the value returned by this function for its `mapStyle`:
+
+`client/src/views/map/Map.js`
+```js
+export default component(
+  'Map',
+  createSub({
+    getMapStyle,
+    getViewport,
+    getIsConnected,
+  }),
+  ({ viewport, mapStyle, isConnected, dispatch }) => (
+    <Div>
+      <MapGL
+        {...viewport}
+        mapStyle={mapStyle}
+        onViewportChange={viewport =>
+          dispatch(mapEvent.VIEWPORT_CHANGED, viewport)
+        }
+        mapboxApiAccessToken={MAPBOX_TOKEN}
+        maxPitch={59.9}
+        touchRotate
+      >
+        <DeckGLOverlay />
+        <GroundRadial />
+      </MapGL>
+      {isConnected && <ControlOverlay />}
+    </Div>
+  )
+)
+```
+
+If you haven't already, use the UI to create two scenarios "Scenario A" and "Scenario B". Make sure "Scenario B" is
+selected. Once you've done this, you can open up another browser tab to `localhost:4000` or wherever your app is running
+and select "Scenario B" there also. In the UI, under "Map legend" set our new dark mode toggle button to "off". The map
+should change to a light theme. If you switch to the other tab, you should see a light themed map too, and that its dark
+mode toggle has been switched to "off". On either tab, you can select "Scenario A" and observe that dark mode is on for
+this scenario by default. Because the server writes changes to scenario values to disk and reads them from disk whenever
+it starts or a client selects a different scenario, you can safely close both browser tabs, restart your server, open
+the app again, and have saved settings for each scenario.
