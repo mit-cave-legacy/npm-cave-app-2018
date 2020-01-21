@@ -136,7 +136,8 @@ regEventFx(
       console.warn('attempting to mutate but scenario id is null or empty')
       return
     }
-    const scenario = await updateScenario(scenarioId, mutation, { meta })
+    await updateScenario(scenarioId, mutation, { meta })
+    const scenario = await getScenario(scenarioId)
     const op = R.last((await getHistory(scenarioId)).tx)
     console.log('OP', op)
     return [
