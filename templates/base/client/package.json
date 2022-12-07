@@ -79,7 +79,7 @@
     "@emotion/babel-preset-css-prop": "^10.0.14",
     "babel-preset-env": "^1.7.0",
     "husky": "^1.2.0",
-    "lint-staged": "^8.1.0",
+    "lint-staged": "^13.1.0",
     "parcel": "1.12.3",
     "prettier": "1.15.2"
   }
