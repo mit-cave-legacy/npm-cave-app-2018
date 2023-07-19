@@ -1,3 +1,11 @@
+# This is a Legacy Project and has been replaced by a newer CAVE App.
+
+The current CAVE CLI can be found [here](https://github.com/MIT-CAVE/cave_cli). It is used to create new cave projects and provide a variety of useful features.
+
+For non CLI access, you can directly use the [current cave app](https://github.com/MIT-CAVE/cave_app) and follow the non cli directions [here](https://github.com/MIT-CAVE/cave_app/blob/main/NON_CLI_README.md).
+
+## The Original Readme is Below
+</br></br>
 # MIT-CAVE monorepo
 CAVE Open Source Application Development Repo
 
